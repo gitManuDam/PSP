@@ -4,10 +4,10 @@ import java.io.*;
 import java.net.Socket;
 
 public class ClienteGUI {
-    private JFrame frame;
-    private JTextArea textArea;
-    private JTextField textField;
-    private JButton sendButton;
+    private final JFrame frame;
+    private final JTextArea textArea;
+    private final JTextField textField;
+    private final JButton sendButton;
 
     private PrintWriter fsalida;
     private BufferedReader fentrada;
