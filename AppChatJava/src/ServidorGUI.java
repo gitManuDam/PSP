@@ -10,7 +10,7 @@ public class ServidorGUI {
     private static final int PUERTO = 6000;
     private static final int TIMEOUT=300000;
 
-    public ServidorGUI() {
+    public ServidorGUI(){
         //Ventana Principal
         frame = new JFrame("Servidor - Chat ");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -32,7 +32,7 @@ public class ServidorGUI {
         iniciarServidor();
     }
 
-    private void iniciarServidor() {
+    private void iniciarServidor(){
         new Thread(() -> {
             try (ServerSocket servidor = new ServerSocket(PUERTO)) {
                 agregarLog("Servidor escuchando en el puerto  " + PUERTO);
@@ -42,17 +42,17 @@ public class ServidorGUI {
                     agregarLog("Cliente conectado: " + cliente.getInetAddress());
                     new Thread(new ManejadorCliente(cliente, this)).start();
                 }
-            } catch (IOException e) {
+            } catch (IOException e){
                 agregarLog("Error en el servidor:  " + e.getMessage());
             }
         }).start();
     }
 
-    public void agregarLog(String mensaje) {
+    public void agregarLog(String mensaje){
         SwingUtilities.invokeLater(() -> textArea.append(mensaje + "\n"));
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args){
         SwingUtilities.invokeLater(ServidorGUI::new);
     }
 }

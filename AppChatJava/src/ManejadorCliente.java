@@ -1,7 +1,7 @@
 import java.io.*;
 import java.net.Socket;
 
-public class ManejadorCliente implements Runnable  {
+public class ManejadorCliente implements Runnable{
     private final Socket socket;
     private final ServidorGUI servidorGUI; // GUI del servidor
 
@@ -11,7 +11,7 @@ public class ManejadorCliente implements Runnable  {
     }
 
     @Override
-    public void run()  {
+    public void run(){
         try (
                 PrintWriter fsalida = new PrintWriter(socket.getOutputStream(), true);
                 BufferedReader fentrada = new BufferedReader(new InputStreamReader(socket.getInputStream()))
@@ -26,14 +26,14 @@ public class ManejadorCliente implements Runnable  {
                 }
                 fsalida.println("Eco: " + mensaje);
             }
-        } catch (IOException e) {
+        } catch (IOException e){
             servidorGUI.agregarLog("Error con cliente: " + e.getMessage());
         } finally {
             cerrarSocket();
         }
     }
 
-    private void cerrarSocket() {
+    private void cerrarSocket(){
         try {
             if (socket != null && !socket.isClosed()) {
                 socket.close();
