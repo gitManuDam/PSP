@@ -12,7 +12,7 @@ public class ServidorGUI {
 
     public ServidorGUI() {
         //Ventana Principal
-        frame = new JFrame("Servidor - Chat");
+        frame = new JFrame("Servidor - Chat ");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(500, 400);
 
@@ -35,7 +35,7 @@ public class ServidorGUI {
     private void iniciarServidor() {
         new Thread(() -> {
             try (ServerSocket servidor = new ServerSocket(PUERTO)) {
-                agregarLog("Servidor escuchando en el puerto " + PUERTO);
+                agregarLog("Servidor escuchando en el puerto  " + PUERTO);
                     servidor.setSoTimeout(TIMEOUT);
                 while (true) {
                     Socket cliente = servidor.accept();
@@ -43,7 +43,7 @@ public class ServidorGUI {
                     new Thread(new ManejadorCliente(cliente, this)).start();
                 }
             } catch (IOException e) {
-                agregarLog("Error en el servidor: " + e.getMessage());
+                agregarLog("Error en el servidor:  " + e.getMessage());
             }
         }).start();
     }

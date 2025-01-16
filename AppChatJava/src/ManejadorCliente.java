@@ -1,17 +1,17 @@
 import java.io.*;
 import java.net.Socket;
 
-public class ManejadorCliente implements Runnable {
+public class ManejadorCliente implements Runnable  {
     private final Socket socket;
     private final ServidorGUI servidorGUI; // GUI del servidor
 
-    public ManejadorCliente(Socket socket, ServidorGUI servidorGUI) {
+    public ManejadorCliente(Socket socket, ServidorGUI servidorGUI)  {
         this.socket = socket;
         this.servidorGUI = servidorGUI;
     }
 
     @Override
-    public void run() {
+    public void run()  {
         try (
                 PrintWriter fsalida = new PrintWriter(socket.getOutputStream(), true);
                 BufferedReader fentrada = new BufferedReader(new InputStreamReader(socket.getInputStream()))
@@ -37,10 +37,10 @@ public class ManejadorCliente implements Runnable {
         try {
             if (socket != null && !socket.isClosed()) {
                 socket.close();
-                servidorGUI.agregarLog("Conexión con cliente cerrada.");
+                servidorGUI.agregarLog("Conexión con cliente cerrada. ");
             }
         } catch (IOException e) {
-            servidorGUI.agregarLog("Error al cerrar el socket: " + e.getMessage());
+            servidorGUI.agregarLog("Error al cerrar el socket:  " + e.getMessage());
         }
     }
 }
