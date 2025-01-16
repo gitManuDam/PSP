@@ -8,12 +8,9 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class ServidorGUI {
-    private JFrame frame;
-    private JTextArea textArea;
-    private JTextField textField;
-    private JButton sendButton;
-    private JButton closeButton;
-    private JLabel clockLabel;
+    private final JTextArea textArea;
+    private final JTextField textField;
+    private final JLabel clockLabel;
     private static final int PUERTO = 6000;
     private ServerSocket servidor;
     private Socket cliente;
@@ -22,7 +19,7 @@ public class ServidorGUI {
 
     public ServidorGUI() {
         // Crear la ventana principal
-        frame = new JFrame("Servidor - Chat");
+        JFrame frame = new JFrame("Servidor - Chat");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(500, 500);
 
@@ -40,7 +37,7 @@ public class ServidorGUI {
         textField.addActionListener(e -> enviarMensaje());
 
         // Configurar el botón de enviar
-        sendButton = new JButton("Enviar");
+        JButton sendButton = new JButton("Enviar");
         sendButton.setFont(new Font("Arial", Font.BOLD, 14));
         sendButton.setBackground(new Color(76, 175, 80));
         sendButton.setForeground(Color.WHITE);
@@ -51,7 +48,7 @@ public class ServidorGUI {
         inputPanel.add(sendButton, BorderLayout.EAST);
 
         // Configurar el botón de cerrar
-        closeButton = new JButton("Cerrar Servidor");
+        JButton closeButton = new JButton("Cerrar Servidor");
         closeButton.setFont(new Font("Arial", Font.BOLD, 14));
         closeButton.setBackground(new Color(244, 67, 54));
         closeButton.setForeground(Color.WHITE);
@@ -83,7 +80,7 @@ public class ServidorGUI {
         new Thread(() -> {
             try {
                 servidor = new ServerSocket(PUERTO);
-                agregarLog("Servidor escuchando en el puerto " + PUERTO);
+                agregarLog("Servidor escuchando en el puerto :" + PUERTO);
                 cliente = servidor.accept();
                 agregarLog("Cliente conectado: " + cliente.getInetAddress());
                 fsalida = new PrintWriter(cliente.getOutputStream(), true);
@@ -111,7 +108,7 @@ public class ServidorGUI {
         String mensaje = textField.getText();
         if (!mensaje.isEmpty() && fsalida != null) {
             fsalida.println(mensaje);
-            agregarLog("Tú: " + mensaje);
+            agregarLog("Tú:  " + mensaje);
             textField.setText("");
         }
     }
@@ -127,13 +124,13 @@ public class ServidorGUI {
             }
             new javax.swing.Timer(5000, e -> System.exit(0)).start(); // Cierra la aplicación después de 3 segundos
         } catch (IOException e) {
-            agregarLog("Error al cerrar el servidor: " + e.getMessage());
+            agregarLog("Error al cerrar el servidor:  " + e.getMessage());
         }
     }
 
     private void iniciarTimeout() {
         timeoutTimer = new Timer(30000, e -> {
-            agregarLog("No se recibió ningún mensaje en 30 segundos. Cerrando el servidor...");
+            agregarLog("No se recibió ningún mensaje en 30 segundos. Cerrando el servidor....");
             cerrarServidor();
         });
         timeoutTimer.setRepeats(false);
@@ -142,14 +139,14 @@ public class ServidorGUI {
 
     private void resetTimeout() {
         if (timeoutTimer != null) {
-            timeoutTimer.restart(); // Reinicia el temporizador
+            timeoutTimer.restart(); // Reinicia el temporizador.
         }
     }
 
     private void actualizarReloj() {
         Timer relojTimer = new Timer(1000, e -> {
             SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
-            clockLabel.setText("Hora actual: " + sdf.format(new Date()));
+            clockLabel.setText("Hora actual:  " + sdf.format(new Date()));
         });
         relojTimer.start();
     }
