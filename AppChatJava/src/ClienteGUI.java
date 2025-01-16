@@ -34,6 +34,7 @@ public class ClienteGUI {
         textField.setBackground(new Color(255, 255, 255));
         textField.setForeground(new Color(33, 33, 33));
 
+
         //Botón de enviar
         sendButton = new JButton("Enviar");
         sendButton.setBackground(new Color(76, 175, 80));
@@ -78,21 +79,34 @@ public class ClienteGUI {
     }
 
     private void configurarBotonEnviar() {
+        // Listener para el botón
         sendButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String mensaje = textField.getText();
-                if (!mensaje.isEmpty()) {
-                    fsalida.println(mensaje);
-                    textArea.append("Tú: " + mensaje + "\n");
-                    textField.setText("");
-
-                    if ("salir".equalsIgnoreCase(mensaje)) {
-                        System.exit(0);
-                    }
-                }
+                enviarMensaje();
             }
         });
+
+        // Listener para el campo de texto (Enter)
+        textField.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                enviarMensaje();
+            }
+        });
+    }
+
+    private void enviarMensaje() {
+        String mensaje = textField.getText();
+        if (!mensaje.isEmpty()) {
+            fsalida.println(mensaje);
+            textArea.append("Tú: " + mensaje + "\n");
+            textField.setText("");
+
+            if ("salir".equalsIgnoreCase(mensaje)) {
+                System.exit(0);
+            }
+        }
     }
 
     public static void main(String[] args) {
