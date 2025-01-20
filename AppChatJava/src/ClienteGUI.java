@@ -70,7 +70,7 @@ public class ClienteGUI {
                         textArea.append("Servidor: " + mensaje + "\n");
                     }
                 } catch (IOException e) {
-                    textArea.append("Error recibiendo mensajes: " + e.getMessage() + "\n");
+                    textArea.append("Error recibiendo mensajes:  " + e.getMessage() + "\n");
                 }
             }).start();
         } catch (IOException e) {
