@@ -13,18 +13,18 @@ public class ServidorDHCP {
     private static final int MAX_IPS = 10;
     private static final String BASE_IP = "192.168.1.";
 
-    private final Set<String> ipsDisponibles = ConcurrentHashMap.newKeySet();
-    private final Map<String, String> ipsAsignadas = new ConcurrentHashMap<>();
-    private final Map<String, Long> tiemposExpiracion = new ConcurrentHashMap<>();
+    private final Set<String> ips_disponibles = ConcurrentHashMap.newKeySet();
+    private final Map<String, String> ips_asignadas = new ConcurrentHashMap<>();
+    private final Map<String, Long> tiempos_expiracion = new ConcurrentHashMap<>();
 
-    private final DefaultListModel<String> modeloClientes = new DefaultListModel<>();
-    private final DefaultListModel<String> modeloIpsDisponibles = new DefaultListModel<>();
-    private JList<String> listaClientes;
+    private final DefaultListModel<String> modelo_clientes = new DefaultListModel<>();
+    private final DefaultListModel<String> modelo_ips_disponibles = new DefaultListModel<>();
+    private JList<String> lista_clientes;
 
     public ServidorDHCP(int maxIps) {
         for (int i = 2; i < 2 + maxIps; i++) {
-            ipsDisponibles.add(BASE_IP + i);
-            modeloIpsDisponibles.addElement(BASE_IP + i);
+            ips_disponibles.add(BASE_IP + i);
+            modelo_ips_disponibles.addElement(BASE_IP + i);
         }
         iniciarGUI();
     }
@@ -57,15 +57,15 @@ public class ServidorDHCP {
 
                 String solicitud = entrada.readLine();
                 if ("SOLICITAR_IP".equals(solicitud)) {
-                    synchronized (ipsDisponibles) {
-                        if (!ipsDisponibles.isEmpty()) {
-                            ipAsignada = ipsDisponibles.iterator().next();
-                            ipsDisponibles.remove(ipAsignada);
-                            ipsAsignadas.put(ipAsignada, socketCliente.getInetAddress().toString());
-                            tiemposExpiracion.put(ipAsignada, System.currentTimeMillis() + 10000); // Expira en 10s
+                    synchronized (ips_disponibles) {
+                        if (!ips_disponibles.isEmpty()) {
+                            ipAsignada = ips_disponibles.iterator().next();
+                            ips_disponibles.remove(ipAsignada);
+                            ips_asignadas.put(ipAsignada, socketCliente.getInetAddress().toString());
+                            tiempos_expiracion.put(ipAsignada, System.currentTimeMillis() + 10000); // Expira en 10s
 
-                            modeloIpsDisponibles.removeElement(ipAsignada);
-                            modeloClientes.addElement(socketCliente.getInetAddress() + " → " + ipAsignada);
+                            modelo_ips_disponibles.removeElement(ipAsignada);
+                            modelo_clientes.addElement(socketCliente.getInetAddress() + " → " + ipAsignada);
 
                             salida.println(ipAsignada);
                             log("✅ IP asignada: " + ipAsignada + " a " + socketCliente.getInetAddress());
@@ -82,8 +82,8 @@ public class ServidorDHCP {
                             liberarIP(ipAsignada);
                             break;
                         } else if ("RENOVAR_IP".equals(mensaje)) {
-                            if (tiemposExpiracion.containsKey(ipAsignada)) {
-                                tiemposExpiracion.put(ipAsignada, System.currentTimeMillis() + 10000); // Renueva por 10s más
+                            if (tiempos_expiracion.containsKey(ipAsignada)) {
+                                tiempos_expiracion.put(ipAsignada, System.currentTimeMillis() + 10000); // Renueva por 10s más
                                 salida.println("IP_RENOVADA");
                                 log("🔄 IP renovada: " + ipAsignada + " por " + socketCliente.getInetAddress());
                             } else {
@@ -111,15 +111,15 @@ public class ServidorDHCP {
     }
 
     private void liberarIP(String ip) {
-        synchronized (ipsDisponibles) {
-            ipsDisponibles.add(ip);
-            ipsAsignadas.remove(ip);
-            tiemposExpiracion.remove(ip);
-            modeloIpsDisponibles.addElement(ip);
+        synchronized (ips_disponibles) {
+            ips_disponibles.add(ip);
+            ips_asignadas.remove(ip);
+            tiempos_expiracion.remove(ip);
+            modelo_ips_disponibles.addElement(ip);
 
-            for (int i = 0; i < modeloClientes.size(); i++) {
-                if (modeloClientes.getElementAt(i).contains(ip)) {
-                    modeloClientes.remove(i);
+            for (int i = 0; i < modelo_clientes.size(); i++) {
+                if (modelo_clientes.getElementAt(i).contains(ip)) {
+                    modelo_clientes.remove(i);
                     break;
                 }
             }
@@ -145,17 +145,17 @@ public class ServidorDHCP {
 
         JPanel panelCentral = new JPanel(new GridLayout(1, 2));
 
-        listaClientes = new JList<>(modeloClientes);
-        JList<String> listaIps = new JList<>(modeloIpsDisponibles);
+        lista_clientes = new JList<>(modelo_clientes);
+        JList<String> listaIps = new JList<>(modelo_ips_disponibles);
 
-        panelCentral.add(new JScrollPane(listaClientes));
+        panelCentral.add(new JScrollPane(lista_clientes));
         panelCentral.add(new JScrollPane(listaIps));
 
         JButton btnLiberar = new JButton("Liberar IP Seleccionada");
         btnLiberar.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String seleccion = listaClientes.getSelectedValue();
+                String seleccion = lista_clientes.getSelectedValue();
                 if (seleccion != null) {
                     String[] partes = seleccion.split(" → ");
                     liberarIP(partes[1]);
