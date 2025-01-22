@@ -20,7 +20,7 @@ public class ClienteDHCP {
             String ipAsignada = entrada.readLine();
 
             if ("NO_HAY_IP".equals(ipAsignada)) {
-                System.out.println("⚠️ No hay direcciones IP disponibles. Cliente cerrando...");
+                System.out.println("No hay direcciones IP disponibles. Cliente cerrando...");
                 return;
             }
 
