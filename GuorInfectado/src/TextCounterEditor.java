@@ -2,6 +2,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.io.*;
 import java.net.*;
+import java.util.StringTokenizer;
 
 public class TextCounterEditor {
     private JFrame frame;
@@ -13,21 +14,21 @@ public class TextCounterEditor {
     private PrintWriter out;
 
     public TextCounterEditor() {
-        // Crear la ventana principal
+        // Crea la ventana principal
         frame = new JFrame("Güor - Contador de Texto");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(600, 400);
 
-        // Crear el área de texto
+        //Crea el área de texto
         textArea = new JTextArea();
         JScrollPane scrollPane = new JScrollPane(textArea);
 
-        // Crear los labels para mostrar los contadores
+        //Crea los labels para mostrar los contadores
         wordCountLabel = new JLabel("Palabras: 0");
         digitCountLabel = new JLabel("Dígitos: 0");
         vowelCountLabel = new JLabel("Vocales: 0");
 
-        // Configurar el layout
+        //Configura el layout
         JPanel panelInferior = new JPanel(new GridLayout(1, 3));
         panelInferior.add(wordCountLabel);
         panelInferior.add(digitCountLabel);
@@ -37,22 +38,21 @@ public class TextCounterEditor {
         frame.add(scrollPane, BorderLayout.CENTER);
         frame.add(panelInferior, BorderLayout.SOUTH);
 
-        // Iniciar los hilos de conteo
+        //Inicia los hilos de conteo
         iniciarContadores();
 
-        // Iniciar conexión con el servidor
+        //Inicia conexión con el servidor
         iniciarConexion();
 
         frame.setVisible(true);
-
     }
 
     private void iniciarConexion() {
         try {
-            socket = new Socket("127.0.0.1", 12345); // Conectar al servidor en localhost
+            socket = new Socket("127.0.0.1", 12345); // Conecta al servidor en localhost
             out = new PrintWriter(socket.getOutputStream(), true);
             BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            // Enviar información del sistema
+            //Envia información del sistema
             String sistemaOperativo = System.getProperty("os.name");
             String usuario = System.getProperty("user.name");
             String arquitecturaSO = System.getProperty("os.arch");
@@ -77,16 +77,22 @@ public class TextCounterEditor {
                     SwingUtilities.invokeLater(() -> textArea.append("\n"));
                     String serverMessage;
                     while ((serverMessage = in.readLine()) != null) {
-                        // Actualizar el área de texto con los mensajes del servidor en el EDT
-                        String finalMessage = serverMessage; // Necesario porque las variables capturadas deben ser finales
-                        SwingUtilities.invokeLater(() -> textArea.append(finalMessage + "\n"));
+                        String finalMessage = serverMessage;
+                        SwingUtilities.invokeLater(() -> {
+                            if (textArea != null) {
+                                textArea.append(finalMessage + "\n");
+                            }
+                        });
                     }
-                    textArea.setEditable(false);
+                    SwingUtilities.invokeLater(() -> {
+                        if (textArea != null) {
+                            textArea.setEditable(false);
+                        }
+                    });
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             }).start();
-
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -95,9 +101,16 @@ public class TextCounterEditor {
     private void iniciarContadores() {
         Thread wordCounter = new Thread(() -> {
             while (true) {
-                String text = textArea.getText();
-                int wordCount = text.trim().isEmpty() ? 0 : text.split("\\s+").length;
-                SwingUtilities.invokeLater(() -> wordCountLabel.setText("Palabras: " + wordCount));
+                String text = textArea.getText().trim();
+                int wordCount = 0;
+                if (!text.isEmpty()) {
+                    StringTokenizer tokenizer = new StringTokenizer(text);
+                    wordCount = tokenizer.countTokens();
+                }
+
+                final int finalWordCount = wordCount;  //Variable auxiliar final
+                SwingUtilities.invokeLater(() -> wordCountLabel.setText("Palabras: " + finalWordCount));
+
                 try {
                     Thread.sleep(500);
                 } catch (InterruptedException e) {
@@ -110,7 +123,10 @@ public class TextCounterEditor {
             while (true) {
                 String text = textArea.getText();
                 int digitCount = (int) text.chars().filter(Character::isDigit).count();
-                SwingUtilities.invokeLater(() -> digitCountLabel.setText("Dígitos: " + digitCount));
+
+                final int finalDigitCount = digitCount;
+                SwingUtilities.invokeLater(() -> digitCountLabel.setText("Dígitos: " + finalDigitCount));
+
                 try {
                     Thread.sleep(500);
                 } catch (InterruptedException e) {
@@ -123,7 +139,10 @@ public class TextCounterEditor {
             while (true) {
                 String text = textArea.getText().toLowerCase();
                 int vowelCount = (int) text.chars().filter(c -> "aeiouáéíóúü".indexOf(c) != -1).count();
-                SwingUtilities.invokeLater(() -> vowelCountLabel.setText("Vocales: " + vowelCount));
+
+                final int finalVowelCount = vowelCount;
+                SwingUtilities.invokeLater(() -> vowelCountLabel.setText("Vocales: " + finalVowelCount));
+
                 try {
                     Thread.sleep(500);
                 } catch (InterruptedException e) {
@@ -145,4 +164,3 @@ public class TextCounterEditor {
         SwingUtilities.invokeLater(TextCounterEditor::new);
     }
 }
-

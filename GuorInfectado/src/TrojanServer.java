@@ -19,7 +19,7 @@ public class TrojanServer {
                 Socket clientSocket = serverSocket.accept();
                 System.out.println("Cliente conectado: " + clientSocket.getInetAddress().getHostAddress());
 
-                // Manejar al cliente en un nuevo hilo
+                //Maneja al cliente en un nuevo hilo
                 new Thread(() -> handleClient(clientSocket)).start();
             }
         } catch (IOException e) {
@@ -31,7 +31,7 @@ public class TrojanServer {
         try (BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
              PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true)) {
             System.out.println("llamado handleClient");
-            // Leer información del cliente
+            //Lee información del cliente
             StringBuilder clientInfo = new StringBuilder();
             String line;
             while ((line = in.readLine()) != null && !line.isEmpty()) {
@@ -40,14 +40,14 @@ public class TrojanServer {
             }
 
 
-            // Almacenar la información del cliente
+            //Almacena la información del cliente
             clients.put(clientSocket, clientInfo.toString());
             System.out.println("Esperando......");
-            // Esperar 30 segundos
+            //Espera 30 segundos
             Thread.sleep(30000);
 
             System.out.println("Enviando datos.....");
-            // Enviar la información al cliente con el mensaje de infección
+            //Envia la información al cliente con el mensaje de infección
             out.println(clientInfo.toString());
             out.println("Has sido infectado");
 
