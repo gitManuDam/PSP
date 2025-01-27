@@ -41,7 +41,6 @@ public class TextCounterEditor {
         iniciarContadores();
 
         // Iniciar conexión con el servidor
-
         iniciarConexion();
 
         frame.setVisible(true);
