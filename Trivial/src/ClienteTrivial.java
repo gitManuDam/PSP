@@ -21,9 +21,7 @@ class ClienteTrivial {
     private PrintWriter salida;
 
     public static void main(String[] args) {
-        String servidor = "localhost";
-        int puerto = 5000;
-        new ClienteTrivial(servidor, puerto);
+        new ClienteTrivial("localhost", 5000);
     }
 
     public ClienteTrivial(String servidor, int puerto) {
@@ -36,7 +34,8 @@ class ClienteTrivial {
             crearInterfaz();
             new Thread(this::escucharMensajes).start();
         } catch (IOException e) {
-            e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "Error al conectar con el servidor: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            System.exit(1);
         }
     }
 
@@ -67,6 +66,7 @@ class ClienteTrivial {
 
         for (int i = 0; i < 4; i++) {
             opcionesBotones[i] = new JButton("Opción " + (i + 1));
+            opcionesBotones[i].setEnabled(false);  // Deshabilitar hasta recibir una pregunta
             opcionesBotones[i].addActionListener(new OpcionSeleccionada(i + 1, this));
             panelOpciones.add(opcionesBotones[i]);
         }
@@ -85,7 +85,6 @@ class ClienteTrivial {
         frame.setVisible(true);
     }
 
-
     public void enviarRespuesta(int respuesta) {
         salida.println(respuesta);
     }
@@ -99,58 +98,59 @@ class ClienteTrivial {
                     break;
                 }
 
-                System.out.println("Mensaje recibido del servidor: " + mensaje); // DEPURACIÓN CLIENTE
 
                 final String msg = mensaje;
                 try {
-                    if (msg.startsWith("Categoría:")) {
-                        SwingUtilities.invokeAndWait(() -> {
-                            String[] partes = msg.split("\n");
+                    if (msg.startsWith("CATEGORIA:")) {
+                        //Separa la pregunta usando ||
+                        String[] partes = msg.split("\\|\\|");
 
-                            if (partes.length > 1) {
-                                preguntaArea.setText(partes[0] + "\n" + partes[1]); // Mostrar categoría y pregunta
-                            } else {
-                                preguntaArea.setText(msg);
-                            }
+                        if (partes.length >= 6) {
+                            SwingUtilities.invokeAndWait(() -> {
+                                preguntaArea.setText(partes[0] + "\n" + partes[1]);
 
-                            for (int i = 0; i < 4; i++) {
-                                if (i + 2 < partes.length) {
+                                //Asignar opciones a los botones
+                                for (int i = 0; i < 4; i++) {
                                     opcionesBotones[i].setText(partes[i + 2]);
-                                } else {
-                                    opcionesBotones[i].setText("Opción " + (i + 1));
+                                    opcionesBotones[i].setEnabled(true);
                                 }
-                            }
-                        });
+                            });
+                        } else {
+                            System.err.println("Error: No se recibieron suficientes datos para la pregunta");
+                            System.err.println("Datos recibidos: " + msg);
+                            SwingUtilities.invokeAndWait(() -> preguntaArea.setText("Error al recibir la pregunta"));
+                        }
                     } else if (msg.startsWith("Correcto! Puntuación:")) {
                         SwingUtilities.invokeAndWait(() -> {
-                            String[] partes = msg.split(": ");
-                            if (partes.length > 1) {
-                                puntuacion = Integer.parseInt(partes[1].trim()); // ACTUALIZAR PUNTUACIÓN
-                                etiquetaPuntuacion.setText("Puntuación: " + puntuacion);
-                            }
                             JOptionPane.showMessageDialog(frame, msg);
+                            actualizarPuntuacion(msg);
                         });
                     } else if (msg.startsWith("Incorrecto!")) {
                         SwingUtilities.invokeAndWait(() -> JOptionPane.showMessageDialog(frame, msg));
+                    } else if (msg.startsWith("Puntuación:")) {
+                        SwingUtilities.invokeAndWait(() -> actualizarPuntuacion(msg));
                     } else if (msg.startsWith("¡Felicidades!") || msg.startsWith("Juego terminado")) {
-                        SwingUtilities.invokeAndWait(() -> JOptionPane.showMessageDialog(frame, msg));
+                        SwingUtilities.invokeAndWait(() -> {
+                            JOptionPane.showMessageDialog(frame, msg);
 
-                        int opcion = JOptionPane.showOptionDialog(
-                                frame,
-                                "¿Quieres jugar otra partida?",
-                                "Fin del juego",
-                                JOptionPane.YES_NO_OPTION,
-                                JOptionPane.QUESTION_MESSAGE,
-                                null,
-                                new String[]{"Jugar otra vez", "Salir"},
-                                "Jugar otra vez"
-                        );
+                            //Para mostrar opción de jugar otra partida
+                            int opcion = JOptionPane.showOptionDialog(
+                                    frame,
+                                    "¿Quieres jugar otra partida?",
+                                    "Fin del juego",
+                                    JOptionPane.YES_NO_OPTION,
+                                    JOptionPane.QUESTION_MESSAGE,
+                                    null,
+                                    new String[]{"Jugar otra vez", "Salir"},
+                                    "Jugar otra vez"
+                            );
 
-                        if (opcion == JOptionPane.YES_OPTION) {
-                            reiniciarJuego();
-                        } else {
-                            cerrarCliente();
-                        }
+                            if (opcion == JOptionPane.YES_OPTION) {
+                                reiniciarJuego();
+                            } else {
+                                cerrarCliente();
+                            }
+                        });
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -160,6 +160,19 @@ class ClienteTrivial {
             System.out.println("Error en la comunicación con el servidor o el socket se cerró: " + e.getMessage());
         }
     }
+
+    private void actualizarPuntuacion(String msg) {
+        try {
+            String[] partes = msg.split(": ");
+            if (partes.length > 1) {
+                puntuacion = Integer.parseInt(partes[1].trim());
+                etiquetaPuntuacion.setText("Puntuación: " + puntuacion);
+            }
+        } catch (NumberFormatException e) {
+            System.err.println("Error al convertir la puntuación: " + msg);
+        }
+    }
+
 
 
 
@@ -173,20 +186,17 @@ class ClienteTrivial {
 
             frame.dispose();
 
-            // Restablecer variables del juego
             puntuacion = 0;
             quesitos.clear();
 
-            // Esperar antes de reconectarse para evitar problemas con el servidor
             Thread.sleep(1000);
 
-            // Crear una nueva conexión con el servidor
+            //Crea una nueva conexión con el servidor
             new ClienteTrivial("localhost", 5000);
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
     }
-
 
     private void cerrarCliente() {
         try {

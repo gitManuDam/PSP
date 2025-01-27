@@ -24,19 +24,25 @@ public class ManejadorCliente implements Runnable {
             entrada = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             salida = new PrintWriter(socket.getOutputStream(), true);
 
-            salida.println("Bienvenido al Trivial! Responde correctamente las preguntas.");
-            System.out.println("Un nuevo jugador se ha conectado.");
+            salida.println("Bienvenido al Trivial! Responde correctamente las preguntas");
+            System.out.println("Un nuevo jugador se ha conectado");
 
             for (Pregunta p : ServidorTrivial.preguntas) {
-                String preguntaTexto = p.toString();
-                System.out.println("Enviando al cliente:\n" + preguntaTexto);
+                String preguntaTexto = "CATEGORIA: " + p.categoria + "||" +
+                        "PREGUNTA: " + p.pregunta + "||" +
+                        "1) " + p.opciones[0] + "||" +
+                        "2) " + p.opciones[1] + "||" +
+                        "3) " + p.opciones[2] + "||" +
+                        "4) " + p.opciones[3] + "||";
+
                 salida.println(preguntaTexto);
+                salida.flush();
 
                 String respuesta;
                 try {
                     respuesta = entrada.readLine();
                     if (respuesta == null) {
-                        System.out.println("El cliente cerró la conexión de manera normal.");
+                        System.out.println("El cliente cerró la conexión de manera normal");
                         break;
                     }
                 } catch (SocketException ex) {
@@ -51,8 +57,7 @@ public class ManejadorCliente implements Runnable {
                     int respuestaInt = Integer.parseInt(respuesta);
                     if (respuestaInt == p.opcionCorrecta) {
                         puntuacion++;
-                        String mensajePuntuacion = "Correcto! Puntuación: " + puntuacion;
-                        salida.println(mensajePuntuacion);
+                        salida.println("Correcto! Puntuación: " + puntuacion);
                         ServidorTrivial.enviarMensajeATodos("Un jugador ha acertado una pregunta!");
 
                         if (!quesitos.contains(p.categoria)) {
@@ -69,13 +74,13 @@ public class ManejadorCliente implements Runnable {
 
                 if (quesitos.size() == 5) {
                     salida.println("¡Felicidades! Has ganado el juego al obtener todos los quesitos.");
-                    salida.println("FIN_JUEGO");
+                    salida.println("FIN DEL JUEGO");
                     break;
                 }
             }
 
             salida.println("Juego terminado. Tu puntuación final: " + puntuacion);
-            salida.println("FIN_JUEGO");
+            salida.println("FIN DEL JUEGO");
 
         } catch (SocketException e) {
             System.out.println("Cliente desconectado inesperadamente: " + e.getMessage());

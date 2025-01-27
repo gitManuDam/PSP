@@ -36,7 +36,6 @@ public class ServidorTrivial {
         preguntas.add(new Pregunta("Deporte", "¿Cuántos jugadores tiene un equipo de fútbol en el campo?", "9", "10", "11", "12", 3));
     }
 
-    // Método para enviar mensajes a todos los jugadores
     public static void enviarMensajeATodos(String mensaje) {
         for (ManejadorCliente cliente : clientes) {
             cliente.enviarMensaje(mensaje);
