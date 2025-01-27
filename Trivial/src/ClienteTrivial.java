@@ -13,7 +13,6 @@ class ClienteTrivial {
     private JTextArea preguntaArea;
     private JButton[] opcionesBotones;
     private JLabel etiquetaPuntuacion;
-    private JPanel panelQuesitos;
     private Set<String> quesitos;
     private int puntuacion;
     private Socket socket;
@@ -77,7 +76,7 @@ class ClienteTrivial {
         etiquetaPuntuacion = new JLabel("Puntuación: 0", SwingConstants.CENTER);
         panelInferior.add(etiquetaPuntuacion, BorderLayout.NORTH);
 
-        panelQuesitos = new JPanel();
+        JPanel panelQuesitos = new JPanel();
         panelInferior.add(panelQuesitos, BorderLayout.SOUTH);
 
         frame.add(panelInferior, BorderLayout.SOUTH);

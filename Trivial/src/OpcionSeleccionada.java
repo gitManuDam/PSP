@@ -2,8 +2,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 class OpcionSeleccionada implements ActionListener {
-    private int respuesta;
-    private ClienteTrivial cliente;
+    private final int respuesta;
+    private final ClienteTrivial cliente;
 
     public OpcionSeleccionada(int respuesta, ClienteTrivial cliente) {
         this.respuesta = respuesta;

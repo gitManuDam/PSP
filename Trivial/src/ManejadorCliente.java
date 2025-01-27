@@ -8,11 +8,10 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class ManejadorCliente implements Runnable {
-    private Socket socket;
+    private final Socket socket;
     private PrintWriter salida;
-    private BufferedReader entrada;
     private int puntuacion = 0;
-    private Set<String> quesitos = new HashSet<>();
+    private final Set<String> quesitos = new HashSet<>();
 
     public ManejadorCliente(Socket socket) {
         this.socket = socket;
@@ -21,7 +20,7 @@ public class ManejadorCliente implements Runnable {
     @Override
     public void run() {
         try {
-            entrada = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            BufferedReader entrada = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             salida = new PrintWriter(socket.getOutputStream(), true);
 
             salida.println("Bienvenido al Trivial! Responde correctamente las preguntas");
