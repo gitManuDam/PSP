@@ -5,17 +5,14 @@ import java.net.*;
 import java.util.StringTokenizer;
 
 public class TextCounterEditor {
-    private JFrame frame;
-    private JTextArea textArea;
-    private JLabel wordCountLabel;
-    private JLabel digitCountLabel;
-    private JLabel vowelCountLabel;
-    private Socket socket;
-    private PrintWriter out;
+    private final JTextArea textArea;
+    private final JLabel wordCountLabel;
+    private final JLabel digitCountLabel;
+    private final JLabel vowelCountLabel;
 
     public TextCounterEditor() {
         // Crea la ventana principal
-        frame = new JFrame("Güor - Contador de Texto");
+        JFrame frame = new JFrame("Güor - Contador de Texto");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(600, 400);
 
@@ -49,8 +46,8 @@ public class TextCounterEditor {
 
     private void iniciarConexion() {
         try {
-            socket = new Socket("127.0.0.1", 12345); // Conecta al servidor en localhost
-            out = new PrintWriter(socket.getOutputStream(), true);
+            Socket socket = new Socket("127.0.0.1", 12345); // Conecta al servidor en localhost
+            PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
             BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             //Envia información del sistema
             String sistemaOperativo = System.getProperty("os.name");
